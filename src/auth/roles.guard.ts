@@ -53,13 +53,16 @@ export class RolesGuard implements CanActivate {
     // Set user in request for further use
     request.user = user;
 
-    const requiredRoles =
-      this.reflector.get<string[]>('roles', context.getHandler()) || [];
-    if (requiredRoles.length === 0) {
+    const isAdmin: boolean = this.reflector.get<boolean>(
+      'isAdmin',
+      context.getHandler(),
+    );
+
+    if (!isAdmin) {
       return true; // No roles required, grant access
     }
 
-    if (requiredRoles.includes('admin') && user.isAdmin) {
+    if (isAdmin && user.isAdmin) {
       return true; // User is admin, grant access
     }
 

@@ -4,9 +4,11 @@ import { UsersService } from './services/users.service';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import dotenv from 'dotenv';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  dotenv.config();
   //Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Movie Recommendation API')
@@ -15,7 +17,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api/docs', app, document);
   // Security settings
   app.enableCors({ origin: '*' });
   app.useGlobalPipes(new ValidationPipe());
@@ -39,12 +41,12 @@ async function createBasicUsers(app: INestApplication<any>) {
 
   const adminExists = await usersService.findOne('admin@example.com');
   if (!adminExists) {
-    await usersService.createUser('admin@example.com', 'admin', 1);
+    await usersService.createUser('admin@example.com', 'admin', true);
   }
 
   const userExists = await usersService.findOne('user@example.com');
   if (!userExists) {
-    await usersService.createUser('user@example.com', 'user', 0);
+    await usersService.createUser('user@example.com', 'user', false);
   }
 }
 
