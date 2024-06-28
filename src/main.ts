@@ -1,11 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app.module';
 import { UsersService } from './services/users.service';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  //Swagger setup
+  const config = new DocumentBuilder()
+    .setTitle('Movie Recommendation API')
+    .setDescription('The movie recommendation API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+  // Security settings
+  app.enableCors({ origin: '*' });
+  app.useGlobalPipes(new ValidationPipe());
+  app.use(helmet());
+  //Add user and admin and then start the app
   await createBasicUsers(app);
   const port = process.env.PORT ?? 3030;
   app.listen(port, () => {
