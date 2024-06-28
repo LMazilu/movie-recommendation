@@ -1,12 +1,19 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { AppController } from '../controllers/app.controller';
-import { AppService } from '../services/app.service';
-import { LoggingMiddleware } from '../middlewares/loggingHandler';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth.module';
+import { UsersModule } from './users.module';
+import { RecommendationsModule } from './recommendation.module';
+import { LoggingMiddleware } from 'src/middlewares/loggingHandler';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRoot(process.env.MONGO_URI ?? ''),
+    AuthModule,
+    UsersModule,
+    RecommendationsModule,
+  ],
 })
 export class AppModule implements NestModule {
   /**
