@@ -1,0 +1,54 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3030:3030'
+    expose:
+      - '3030'
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - moviedb
+    networks:
+      - movie-app
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../movie-recommendation-fe
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    expose:
+      - '3000'
+    depends_on:
+      - backend
+    networks:
+      - movie-app
+
+  moviedb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    expose:
+      - '27017'
+    environment:
+      MONGO_URI: ${MONGO_URI}
+    volumes:
+      - moviedb-data:/data/db
+    networks:
+      - movie-app
+
+volumes:
+  moviedb-data:
+
+networks:
+  movie-app:
+    driver: bridge

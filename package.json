@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "docker:down": "docker-compose -f docker-compose.yml down",
+    "docker:up": "docker-compose up --build -d",
+    "docker:prune": "docker image prune -f",
+    "docker": "npm-run-all docker:down docker:prune docker:up"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -27,10 +31,14 @@
     "@nestjs/mongoose": "^10.0.6",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^7.3.1",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
+    "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
+    "helmet": "^7.1.0",
     "mongoose": "^8.4.4",
+    "npm-run-all": "^4.1.5",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
