@@ -1,10 +1,11 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth.module';
 import { UsersModule } from './users.module';
 import { RecommendationsModule } from './recommendation.module';
-import { LoggingMiddleware } from 'src/middlewares/loggingHandler';
 import { ConfigModule } from '@nestjs/config';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -14,14 +15,6 @@ import { ConfigModule } from '@nestjs/config';
     UsersModule,
     RecommendationsModule,
   ],
+  providers: [RolesGuard, JwtService],
 })
-export class AppModule implements NestModule {
-  /**
-   * Middlewares configurations
-   *
-   * @param {MiddlewareConsumer} consumer - The consumer object for applying middleware.
-   */
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggingMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

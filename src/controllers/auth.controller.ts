@@ -1,16 +1,12 @@
 import {
   Controller,
-  Request,
   Post,
-  UseGuards,
   Body,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { LocalAuthGuard } from '../auth/local-auth.guard';
 import { UsersService } from '../services/users.service';
-import { JwtService } from '@nestjs/jwt';
 import { Request as ExpressRequest } from 'express';
+import { AuthDTO } from 'src/DTOs/AuthDTO.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,17 +22,9 @@ export class AuthController {
    * @return {Promise<any>} A promise that resolves to the login response.
    * @throws {UnauthorizedException} If the user credentials are invalid.
    */
-  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req: ExpressRequest) {
-    const user = await this.authService.validateUser(
-      req.body.email,
-      req.body.password,
-    );
-    if (!user) {
-      throw new UnauthorizedException('Invalid user credentials');
-    }
-    return this.authService.login(user);
+  async login(@Body() req: AuthDTO) {
+    return this.authService.login(req.email, req.password);
   }
 
   /**
@@ -49,6 +37,6 @@ export class AuthController {
    */
   @Post('register')
   async register(@Body() body: { email: string; password: string }) {
-    return this.usersService.createUser(body.email, body.password, 0);
+    return this.usersService.createUser(body.email, body.password, false);
   }
 }

@@ -1,14 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import { HydratedDocument } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
 export type UserDocument = HydratedDocument<User>;
 
 @Schema()
 export class User {
-  @Prop({ auto: true, unique: true })
-    _id!: mongoose.Types.ObjectId;
-    
   @Prop({ required: true, unique: true })
   email: string;
 
@@ -16,10 +13,10 @@ export class User {
   password: string;
 
   @Prop({ required: true, default: 0 })
-  isAdmin: number;
+  isAdmin: boolean;
 
   @Prop({ required: true, default: 0 })
-  isDeleted: number;
+  isDeleted: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -32,9 +29,9 @@ UserSchema.pre('save', async function (next) {
   if (!process.env.BCRYPT_SALT_ROUNDS) {
     throw new Error('BCRYPT_SALT_ROUNDS is not defined');
   }
-  this.password = await bcrypt.hash(
-    this.password,
-    process.env.BCRYPT_SALT_ROUNDS,
+  const salt = await bcrypt.genSalt(
+    parseInt(process.env.BCRYPT_SALT_ROUNDS, 10),
   );
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });

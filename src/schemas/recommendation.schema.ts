@@ -5,8 +5,6 @@ export type RecommendationDocument = HydratedDocument<Recommendation>;
 
 @Schema()
 export class Recommendation {
-  @Prop({ auto: true, unique: true })
-  _id!: mongoose.Types.ObjectId;
 
   @Prop({ required: true })
   title: string;

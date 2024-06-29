@@ -27,45 +27,33 @@ export class RolesGuard implements CanActivate {
    * @throws {UnauthorizedException} If no token is provided, the token is invalid, the user is not found, or the user is deleted.
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-
     if (!token) {
       throw new UnauthorizedException('No token provided');
     }
 
-    let payload: any;
     try {
-      payload = this.jwtService.verify(token);
-    } catch (err) {
-      throw new UnauthorizedException('Invalid token');
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
+      // Set user in request for further use
+      request['user'] = payload;
+      const isAdmin: boolean = this.reflector.get<boolean>(
+        'isAdmin',
+        context.getHandler(),
+      );
+
+      if (!isAdmin) {
+        return true; // No roles required, grant access
+      }
+
+      if (isAdmin && payload.isAdmin) {
+        return true; // User is admin, grant access
+      }
+    } catch {
+      throw new UnauthorizedException('Token is invalid');
     }
-
-    const user = await this.userModel.findById(payload.sub);
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-
-    if (user.isDeleted) {
-      throw new UnauthorizedException('User is deleted');
-    }
-
-    // Set user in request for further use
-    request.user = user;
-
-    const isAdmin: boolean = this.reflector.get<boolean>(
-      'isAdmin',
-      context.getHandler(),
-    );
-
-    if (!isAdmin) {
-      return true; // No roles required, grant access
-    }
-
-    if (isAdmin && user.isAdmin) {
-      return true; // User is admin, grant access
-    }
-
     return false; // Access denied
   }
 
