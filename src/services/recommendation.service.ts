@@ -79,7 +79,6 @@ export class RecommendationService {
    *                   - year: The year of release of the recommended content.
    */
   parseResponse(response: any): any {
-    console.log(response.choices[0].message.content);
     const text = response.choices[0].message.content.trim();
     const lines = text
       .split('\n')

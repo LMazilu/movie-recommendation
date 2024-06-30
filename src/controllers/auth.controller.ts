@@ -1,8 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-} from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { UsersService } from '../services/users.service';
 import { Request as ExpressRequest } from 'express';
@@ -25,6 +21,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() req: AuthDTO) {
     return this.authService.login(req.email, req.password);
+  }
+
+  @Post('google-login')
+  async googleLogin(@Body('token') token: string) {
+    return this.authService.googleLogin(token);
   }
 
   /**

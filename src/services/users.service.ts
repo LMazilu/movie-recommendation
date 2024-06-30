@@ -70,6 +70,26 @@ export class UsersService {
     return await newUser.save();
   }
 
+  async createGoogleUser(
+    email: string,
+    googleId: string,
+    password: string,
+    isAdmin: boolean,
+  ): Promise<UserDocument> {
+    const newUser = new this.userModel({
+      email,
+      googleId,
+      password,
+      isAdmin,
+      isDeleted: 0,
+    });
+    const alreadyExists = await this.findOne(email);
+    if (alreadyExists) {
+      throw new ConflictException('User already exists');
+    }
+    return await newUser.save();
+  }
+
   /**
    * Validates the password for a user.
    *
