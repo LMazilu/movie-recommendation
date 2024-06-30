@@ -87,14 +87,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "plugins": [
-    {
-      "name": "@nestjs/swagger",
-      "options": {
-        "classValidatorShim": true,
-        "introspectComments": true
-      }
-    }
-  ]
+  }
 }
