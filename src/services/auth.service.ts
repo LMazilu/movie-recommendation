@@ -85,14 +85,6 @@ export class AuthService {
     oldPassword: string,
     newPassword: string,
   ): Promise<void> {
-    console.log(
-      'email: ' +
-        email +
-        ' oldPassword: ' +
-        oldPassword +
-        ' newPassword: ' +
-        newPassword,
-    );
     const user = await this.usersService.findOne(email);
     if (!user) {
       throw new NotFoundException('User not found');
