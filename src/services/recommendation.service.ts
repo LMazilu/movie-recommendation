@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import axios from 'axios';
 import { RecommendationRequest } from 'src/DTOs/RecommendationRequest.dto';
 import { FilmApiResponseType } from 'src/types/FilmApiResponseType';
 import { ParsedFilmType } from 'src/types/ParsedFilm';
-import { RecommendationApiResponseType } from 'src/types/RecommendationApiResponseType';
+import { UsersService } from './users.service';
 
 @Injectable()
 export class RecommendationService {
+  constructor(
+    private readonly usersService: UsersService
+  ) {}
+
   async getRecommendationsByTopic(topic: string) {
     const prompt = this.generateTopicPrompt(topic);
     try {
@@ -123,6 +127,25 @@ Titolo4: "Avatar"`;
     }
   }
 
+  async saveRecommendationToUser(films: ParsedFilmType[], userEmail: string) {
+    const user = await this.usersService.findOne(userEmail);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const recommendations = films.map((film) => ({
+      title: film.title,
+      description: film.description,
+      cast: film.cast,
+      duration: film.duration,
+      year: parseInt(film.year, 10),
+      url: film.url,
+    }));
+
+    user.recommendations.push(...recommendations);
+    await user.save();
+  }
+
   /**
    * Generates a prompt for recommending a content based on the user's mood answers, content type, and genre.
    *
@@ -184,62 +207,64 @@ Esempio di risposta:
   }
 
   /**
- * Parses the response from the API and extracts the relevant information.
- *
- * @param {any} response - The response from the API.
- * @return {object} An object containing the parsed information.
- *                   The object has the following properties:
- *                   - mood: The mood related to the recommendation.
- *                   - films: An array of objects containing recommended films.
- *                             Each film object has the following properties:
- *                             - title: The title of the recommended film.
- *                             - description: The description of the recommended film.
- *                             - cast: The cast of the recommended film.
- *                             - duration: The duration of the recommended film.
- *                             - year: The year of release of the recommended film.
- *                             - url: The URL of the poster for the recommended film.
- */
- async parseFinalResponse(response: any): Promise<{ mood: string, films: ParsedFilmType[] }> {
-  let text = response.choices[0].message.content.trim();
+   * Parses the response from the API and extracts the relevant information.
+   *
+   * @param {any} response - The response from the API.
+   * @return {object} An object containing the parsed information.
+   *                   The object has the following properties:
+   *                   - mood: The mood related to the recommendation.
+   *                   - films: An array of objects containing recommended films.
+   *                             Each film object has the following properties:
+   *                             - title: The title of the recommended film.
+   *                             - description: The description of the recommended film.
+   *                             - cast: The cast of the recommended film.
+   *                             - duration: The duration of the recommended film.
+   *                             - year: The year of release of the recommended film.
+   *                             - url: The URL of the poster for the recommended film.
+   */
+  async parseFinalResponse(
+    response: any,
+  ): Promise<{ mood: string; films: ParsedFilmType[] }> {
+    let text = response.choices[0].message.content.trim();
 
-  // Remove the "```json" at the beginning and "```" at the end
-  if (text.startsWith('```json')) {
-    text = text.substring(7);
-  }
-  if (text.endsWith('```')) {
-    text = text.substring(0, text.length - 3);
-  }
+    // Remove the "```json" at the beginning and "```" at the end
+    if (text.startsWith('```json')) {
+      text = text.substring(7);
+    }
+    if (text.endsWith('```')) {
+      text = text.substring(0, text.length - 3);
+    }
 
-  // Parse the JSON text
-  const parsedResponse = JSON.parse(text);
+    // Parse the JSON text
+    const parsedResponse = JSON.parse(text);
 
-  const mood = parsedResponse.mood;
-  const films: ParsedFilmType[] = await Promise.all(
+    const mood = parsedResponse.mood;
+    const films: ParsedFilmType[] = await Promise.all(
       parsedResponse.films.map(async (filmData: FilmApiResponseType) => {
-      const film = filmData.film;
-      const titolo = film.titolo;
-      const descrizione = film.descrizione;
-      const cast = film.cast;
-      const durata = film.durata;
-      const annoDiUscita = film.anno;
+        const film = filmData.film;
+        const titolo = film.titolo;
+        const descrizione = film.descrizione;
+        const cast = film.cast;
+        const durata = film.durata;
+        const annoDiUscita = film.anno;
 
-      // Fetch poster URL using OMDB API
-      const omdbResponse = await axios.get(
-        `https://omdbapi.com/?t=${titolo}&apikey=${process.env.OMDB_API_KEY}`,
-      );
-      const url = omdbResponse.data.Poster;
+        // Fetch poster URL using OMDB API
+        const omdbResponse = await axios.get(
+          `https://omdbapi.com/?t=${titolo}&apikey=${process.env.OMDB_API_KEY}`,
+        );
+        const url = omdbResponse.data.Poster;
 
-      return {
-        title: titolo,
-        description: descrizione,
-        cast: cast,
-        duration: durata,
-        year: annoDiUscita,
-        url: url,
-      };
-    }),
-  );
+        return {
+          title: titolo,
+          description: descrizione,
+          cast: cast,
+          duration: durata,
+          year: annoDiUscita,
+          url: url,
+        };
+      }),
+    );
 
-  return { mood, films };
-}
+    return { mood, films };
+  }
 }

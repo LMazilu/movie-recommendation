@@ -40,4 +40,36 @@ export class AuthController {
   async register(@Body() body: { email: string; password: string }) {
     return this.usersService.createUser(body.email, body.password, false);
   }
+
+  /**
+   * Sends a password reset request to the user with the given email.
+   *
+   * @param {Object} body - The request body containing the user's email.
+   * @param {string} body.email - The email address of the user.
+   * @return {Promise<void>} A promise that resolves when the password reset request is sent.
+   */
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }): Promise<void> {
+    return this.authService.forgotPassword(body.email);
+  }
+
+  /**
+   * Changes the password of a user.
+   *
+   * @param {Object} body - The request body containing the user's email, old password, and new password.
+   * @param {string} body.email - The email address of the user.
+   * @param {string} body.oldPassword - The current password of the user.
+   * @param {string} body.newPassword - The new password of the user.
+   * @return {Promise<void>} A Promise that resolves when the password is successfully changed.
+   */
+  @Post('change-password')
+  async changePassword(
+    @Body() body: { email: string; oldPassword: string; newPassword: string },
+  ): Promise<void> {
+    return this.authService.changePassword(
+      body.email,
+      body.oldPassword,
+      body.newPassword,
+    );
+  }
 }

@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { IsOptional } from 'class-validator';
+import { Recommendation, RecommendationSchema } from './recommendation.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -22,6 +23,9 @@ export class User {
 
   @Prop({ required: true, default: 0 })
   isDeleted: boolean;
+
+  @Prop({ type: [RecommendationSchema], default: [] })
+  recommendations: Recommendation[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
