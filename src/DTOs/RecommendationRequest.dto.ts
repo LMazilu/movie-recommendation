@@ -1,12 +1,42 @@
-import { IsArray, IsString } from 'class-validator';
+import { IsArray, IsDefined, IsString } from 'class-validator';
 
 export class RecommendationRequest {
-  @IsArray()
-  moodAnswers: string[];
+  @IsString()
+  @IsDefined()
+  topic: string;
+    
 
   @IsString()
+  @IsDefined()
+  years: string;
+
+    
+  @IsString()
+  @IsDefined()
+  feeling: string;
+    
+
+  @IsString()
+  @IsDefined()
+  moviePreference: string;
+    
+
+  @IsString()
+  @IsDefined()
+  platform: string;
+
+    
+  @IsString()
+  @IsDefined()
   contentType: string;
 
+    
   @IsString()
-  genre: string;
+  @IsDefined()
+  genre1: string;
+
+
+  @IsString()
+  @IsDefined()
+  genre2: string;
 }
