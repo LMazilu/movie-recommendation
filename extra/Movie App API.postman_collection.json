@@ -1,0 +1,315 @@
+{
+	"info": {
+		"_postman_id": "d2deb5a5-63a0-406d-9265-23d048072a37",
+		"name": "Movie App API",
+		"description": "Collection for testing Movie App API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16163443"
+	},
+	"item": [
+		{
+			"name": "Register User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"testsss@example.com\",\n    \"password\": \"password123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3030/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"testsss@example.com\",\n    \"password\": \"test\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3030/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recommendation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZ29vZ2xlSWQiOm51bGwsInN1YiI6IjY2N2YyMjViYjZjN2VjMjdkMDY1NzQ0ZSIsImlzQWRtaW4iOnRydWUsImlzRGVsZXRlZCI6ZmFsc2UsImlhdCI6MTcxOTkzMTMzNSwiZXhwIjoxNzIwMDE3NzM1fQ.oFJ9j9LruzpOjiiubWgu-YGdnE5YDs8pFwNBb-WN608",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"topic\":\"natura\",\n    \"years\":\"1990-2020\",\n    \"feeling\":\"relax\",\n    \"moviePreference\":\"Pulp Fiction\",\n    \"platform\":\"Netflix\",\n    \"contentType\":\"film\",\n    \"genre1\":\"horror\",\n    \"genre2\":\"comico\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3030/api/recommendations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"api",
+						"recommendations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recommendation by topic",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZ29vZ2xlSWQiOm51bGwsInN1YiI6IjY2N2YyMjViYjZjN2VjMjdkMDY1NzQ0ZSIsImlzQWRtaW4iOnRydWUsImlzRGVsZXRlZCI6ZmFsc2UsImlhdCI6MTcxOTkzMTMzNSwiZXhwIjoxNzIwMDE3NzM1fQ.oFJ9j9LruzpOjiiubWgu-YGdnE5YDs8pFwNBb-WN608",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:3030/api/recommendations/natura",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"api",
+						"recommendations",
+						"natura"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwic3ViIjoiNjY3ZjIyNWJiNmM3ZWMyN2QwNjU3NDRlIiwiaXNBZG1pbiI6dHJ1ZSwiaXNEZWxldGVkIjpmYWxzZSwiaWF0IjoxNzE5Njc1MDU4LCJleHAiOjE3MTk3NjE0NTh9.l9_SGa5wLgPXdTDiIYthtot9wrALyUqpxPdFeSDmaDI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"newpassword123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3030/users/testuser@example.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"users",
+						"testuser@example.com"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "list all users",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZ29vZ2xlSWQiOm51bGwsInN1YiI6IjY2N2YyMjViYjZjN2VjMjdkMDY1NzQ0ZSIsImlzQWRtaW4iOnRydWUsImlzRGVsZXRlZCI6ZmFsc2UsImlhdCI6MTcxOTg0MDA4NSwiZXhwIjoxNzE5OTI2NDg1fQ.jpQukDMltDAdhzQE5aohm2IlCZX0YSli6pHoxkVm6gM",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3030/users",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "forgot password",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"testsss@example.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/auth/forgot-password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"auth",
+						"forgot-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "change password",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"testsss@example.com\",\r\n    \"oldPassword\":\"movieAppPassword\",\r\n    \"newPassword\":\"test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3030/auth/change-password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"auth",
+						"change-password"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Authorization",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}
