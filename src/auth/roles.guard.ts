@@ -38,7 +38,9 @@ export class RolesGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
       // Set user in request for further use
-      request['user'] = payload;
+      request.user = payload;
+      request.userEmail = payload.email;
+      request.isAdmin = payload.isAdmin;
       const isAdmin: boolean = this.reflector.get<boolean>(
         'isAdmin',
         context.getHandler(),

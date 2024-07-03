@@ -23,6 +23,14 @@ export class AuthController {
     return this.authService.login(req.email, req.password);
   }
 
+  /**
+   * Logs in a user with a google account.
+   * We get a googleId token and then transform it into our jwt and return it to the user.
+   *
+   * @param {ExpressRequest} token - The Express request object.
+   * @return {Promise<any>} A promise that resolves to the login response.
+   * @throws {UnauthorizedException} If the user credentials are invalid.
+   */
   @Post('google-login')
   async googleLogin(@Body('token') token: string) {
     return this.authService.googleLogin(token);

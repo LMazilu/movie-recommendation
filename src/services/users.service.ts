@@ -9,7 +9,10 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from 'src/DTOs/updateUserDTO.dto';
-import { UserResponseDTO } from 'src/DTOs/UserResponseDTO.dto';
+import {
+  Recommendation,
+  RecommendationDocument,
+} from 'src/schemas/recommendation.schema';
 
 @Injectable()
 export class UsersService {
@@ -70,6 +73,16 @@ export class UsersService {
     return await newUser.save();
   }
 
+  /**
+   * Creates a new user when logging in with Google.
+   * Retrieves data from jwt.
+   *
+   * @param {string} email - The email address of the user.
+   * @param {string} googleId - The googleId address of the user.
+   * @param {string} password - The password of the user.
+   * @param {boolean} isAdmin - The admin status of the user.
+   * @return {Promise<User>} A promise that resolves to the created user.
+   */
   async createGoogleUser(
     email: string,
     googleId: string,
@@ -109,6 +122,14 @@ export class UsersService {
     return isPasswordValid;
   }
 
+  /**
+   * Updates a user with the given email and updateUserDto.
+   *
+   * @param {string} email - The email of the user to update.
+   * @param {UpdateUserDto} updateUserDto - The data to update the user with.
+   * @return {Promise<UserDocument>} A Promise that resolves to the updated user.
+   * @throws {NotFoundException} If the user is not found.
+   */
   async updateUser(
     email: string,
     updateUserDto: UpdateUserDto,
@@ -129,6 +150,12 @@ export class UsersService {
     return user.save();
   }
 
+  /**
+   * Deletes a user based on the provided email address.
+   *
+   * @param {string} email - The email address of the user to delete.
+   * @return {Promise<UserDocument>} A Promise that resolves to the deleted user.
+   */
   async deleteUser(email: string): Promise<UserDocument> {
     const user = await this.findOne(email);
     if (!user) {

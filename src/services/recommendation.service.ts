@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import axios from 'axios';
 import { RecommendationRequest } from 'src/DTOs/RecommendationRequest.dto';
 import { FilmApiResponseType } from 'src/types/FilmApiResponseType';
@@ -7,10 +11,15 @@ import { UsersService } from './users.service';
 
 @Injectable()
 export class RecommendationService {
-  constructor(
-    private readonly usersService: UsersService
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
+  /**
+   * Retrieves recommendations based on a given topic.
+   *
+   * @param {string} topic - The topic to base recommendations on.
+   * @returns {Promise<any>} A promise that resolves to the recommendations.
+   * @throws {Error} If there's an error generating the recommendation.
+   */
   async getRecommendationsByTopic(topic: string) {
     const prompt = this.generateTopicPrompt(topic);
     try {
@@ -41,6 +50,12 @@ export class RecommendationService {
     }
   }
 
+  /**
+   * Generates a prompt for topic-based recommendations.
+   *
+   * @param {string} topic - The topic to base the prompt on.
+   * @returns {string} The generated prompt.
+   */
   generateTopicPrompt(topic: string) {
     return `Sei un assistente che propone dei film in base alle richieste del cliente. Devi rispondere sempre con una lista di 4 titoli in base al topic richiesto, e nient'altro. Non aggiungere commenti tuoi. Non ci devono essere titoli duplicati. Da qui il prompt: Raccomanda quattro film basati su o che abbia qualcosa a che fare con ${topic}.
       Fornisci i vari titoli e separa ciascuna informazione con un '\n'. Esempio di risposta:
@@ -50,6 +65,12 @@ Titolo3: "Shrek"
 Titolo4: "Avatar"`;
   }
 
+  /**
+   * Parses the response from the topic-based recommendation API.
+   *
+   * @param {any} response - The response from the API.
+   * @returns {Promise<any>} A promise that resolves to the parsed response.
+   */
   async parseTopicResponse(response: any): Promise<any> {
     const text = response.choices[0].message.content.trim();
     const lines = text
@@ -87,15 +108,17 @@ Titolo4: "Avatar"`;
   }
 
   /**
-   * Retrieves a recommendation based on the provided mood answers, content type, and genre.
+   * Retrieves a final recommendation based on the provided request and user email.
    *
-   * @param {string[]} moodAnswers - An array of strings representing the user's mood answers.
-   * @param {string} contentType - The type of content to recommend (e.g. movie, TV show).
-   * @param {string} genre - The genre of the content to recommend.
-   * @return {Promise<any>} A promise that resolves to the parsed response containing the recommendation details.
+   * @param {RecommendationRequest} request - The recommendation request object.
+   * @param {string} userEmail - The email of the user requesting the recommendation.
+   * @returns {Promise<any>} A promise that resolves to the parsed response containing the recommendation details.
    * @throws {Error} If there is an error generating the recommendation.
    */
-  async getFinalRecommendation(request: RecommendationRequest) {
+  async getFinalRecommendation(
+    request: RecommendationRequest,
+    userEmail: string,
+  ) {
     const prompt = this.generateFinalPrompt(request);
 
     try {
@@ -120,6 +143,12 @@ Titolo4: "Avatar"`;
       const response = await axios.post(url, data, { headers });
       const parsedResponse = await this.parseFinalResponse(response.data);
 
+      // Save the final recommendations to the user
+      await this.saveFinalRecommendationsToUser(
+        parsedResponse.films,
+        userEmail,
+      );
+
       return parsedResponse;
     } catch (error) {
       console.error('Errore nel generare la raccomandazione:', error);
@@ -127,7 +156,17 @@ Titolo4: "Avatar"`;
     }
   }
 
-  async saveRecommendationToUser(films: ParsedFilmType[], userEmail: string) {
+  /**
+   * Saves the final recommendations to the user's profile.
+   *
+   * @param {ParsedFilmType[]} films - An array of parsed film objects to save.
+   * @param {string} userEmail - The email of the user to save the recommendations for.
+   * @throws {NotFoundException} If the user is not found.
+   */
+  async saveFinalRecommendationsToUser(
+    films: ParsedFilmType[],
+    userEmail: string,
+  ) {
     const user = await this.usersService.findOne(userEmail);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -141,18 +180,20 @@ Titolo4: "Avatar"`;
       year: parseInt(film.year, 10),
       url: film.url,
     }));
-
     user.recommendations.push(...recommendations);
+
+    // Limit to 20 recommendations, removing oldest first if exceeding
+    if (user.recommendations.length > 20) {
+      user.recommendations = user.recommendations.slice(-20);
+    }
     await user.save();
   }
 
   /**
-   * Generates a prompt for recommending a content based on the user's mood answers, content type, and genre.
+   * Generates a prompt for final recommendations based on the provided request.
    *
-   * @param {string[]} moodAnswers - An array of strings representing the user's mood answers.
-   * @param {string} contentType - The type of content to recommend (e.g. movie, TV show).
-   * @param {string} genre - The genre of the content to recommend.
-   * @return {string} The generated prompt.
+   * @param {RecommendationRequest} request - The recommendation request object.
+   * @returns {string} The generated prompt.
    */
   generateFinalPrompt(request: RecommendationRequest): string {
     return `Sei un assistente che aiuta l'user a scegliere 4 film, serie o cartone in base alle sue richieste. Devi rispondere sempre con un titolo, una descrizione, il cast, la durata e l'anno di uscita, senza aggiungere commenti tuoi. 
@@ -207,20 +248,10 @@ Esempio di risposta:
   }
 
   /**
-   * Parses the response from the API and extracts the relevant information.
+   * Parses the response from the final recommendation API.
    *
    * @param {any} response - The response from the API.
-   * @return {object} An object containing the parsed information.
-   *                   The object has the following properties:
-   *                   - mood: The mood related to the recommendation.
-   *                   - films: An array of objects containing recommended films.
-   *                             Each film object has the following properties:
-   *                             - title: The title of the recommended film.
-   *                             - description: The description of the recommended film.
-   *                             - cast: The cast of the recommended film.
-   *                             - duration: The duration of the recommended film.
-   *                             - year: The year of release of the recommended film.
-   *                             - url: The URL of the poster for the recommended film.
+   * @returns {Promise<{ mood: string; films: ParsedFilmType[] }>} A promise that resolves to an object containing the mood and parsed film recommendations.
    */
   async parseFinalResponse(
     response: any,
@@ -266,5 +297,21 @@ Esempio di risposta:
     );
 
     return { mood, films };
+  }
+
+  /**
+   * Retrieves the recommendations for a specific user.
+   *
+   * @param {string} email - The email of the user to get recommendations for.
+   * @returns {Promise<any>} A promise that resolves to the user's recommendations.
+   * @throws {NotFoundException} If the user is not found.
+   */
+  async getUserRecommendations(email: string) {
+    const user = await this.usersService.findOne(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    // Return the user's recommendations, which are limited to 20
+    return user.recommendations;
   }
 }
