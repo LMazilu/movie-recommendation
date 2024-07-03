@@ -22,10 +22,21 @@ There is no source code for the mongo, it's using nest mongoose + docker image t
 
 In the project directory, you can run:
 
-### `npm start`
+### `npm run docker`
+
+Calls npm run docker:down and then npm run docker:up.
+The docker:down script is explained below.
+Then, creates images with the Dockerfiles of the backend and frontend projects (must be in the same root folder), and starts 3 new containers for the projects, 1 for the frontend, 1 for the backend, and a final one for the mongoDB database.
+
+### `npm run docker:down`
+
+Deletes current docker images, docker containers and dangling images.
+Will leave volumes and volume data intact.
+
+### `npm run start`
 
 Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Open [http://localhost:3030](http://localhost:3030) to view it in the browser.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
